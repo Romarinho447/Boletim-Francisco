@@ -1,0 +1,158 @@
+/* ====== VARIÁVEIS DE COR ====== */
+/* Facilita trocar as cores depois em um só lugar */
+:root {
+  --fundo: #1e2126;          /* fundo escuro da página */
+  --fundo-card: #2a2e35;     /* fundo um pouco mais claro dos cards */
+  --fundo-tabela: #23272e;   /* fundo das linhas da tabela */
+  --borda: #3a3f47;          /* borda suave */
+  --principal: #4a90d9;      /* azul suave (cor principal) */
+  --secundaria: #a0a8b3;     /* cinza claro (cor secundária) */
+  --texto: #e6e8eb;          /* texto claro */
+  --texto-suave: #b0b6bf;    /* texto secundário */
+}
+
+/* ====== RESET BÁSICO ====== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ====== CORPO DA PÁGINA ====== */
+body {
+  background-color: var(--fundo);
+  color: var(--texto);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  padding: 16px;
+}
+
+/* ====== CABEÇALHO ====== */
+.cabecalho {
+  text-align: center;
+  padding: 24px 12px;
+  border-bottom: 2px solid var(--principal);
+  margin-bottom: 24px;
+}
+
+.cabecalho h1 {
+  font-size: 1.8rem;
+  color: var(--principal);
+  letter-spacing: 1px;
+}
+
+.subtitulo {
+  color: var(--texto-suave);
+  font-size: 1rem;
+  margin-top: 6px;
+}
+
+/* ====== CONTEÚDO PRINCIPAL ====== */
+.conteudo {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ====== CARDS DE RESUMO ====== */
+.cards {
+  display: grid;
+  /* Cria colunas automáticas que se ajustam ao tamanho da tela */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background-color: var(--fundo-card);
+  border: 1px solid var(--principal);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+}
+
+.card .rotulo {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+  margin-bottom: 8px;
+}
+
+.card .valor {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--principal);
+}
+
+/* ====== ÁREA DA TABELA ====== */
+.tabela-area h2 {
+  font-size: 1.3rem;
+  color: var(--principal);
+  margin-bottom: 12px;
+}
+
+/* Permite rolagem horizontal em telas pequenas */
+.tabela-responsiva {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--borda);
+}
+
+table.boletim {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px; /* garante que a tabela não fique apertada demais */
+  font-size: 0.9rem;
+}
+
+table.boletim th,
+table.boletim td {
+  padding: 10px 12px;
+  text-align: center;
+  border-bottom: 1px solid var(--borda);
+}
+
+table.boletim th {
+  background-color: var(--principal);
+  color: #ffffff;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+table.boletim td:first-child,
+table.boletim th:first-child {
+  text-align: left;
+}
+
+/* Linhas alternadas para facilitar a leitura */
+table.boletim tbody tr:nth-child(even) {
+  background-color: var(--fundo-tabela);
+}
+
+/* ====== CORES DAS SITUAÇÕES ====== */
+.situacao-bom {
+  color: #4caf7d; /* verde suave */
+  font-weight: bold;
+}
+
+.situacao-atencao {
+  color: #d9a441; /* âmbar suave */
+  font-weight: bold;
+}
+
+.situacao-neutra {
+  color: var(--secundaria);
+}
+
+/* ====== AJUSTES PARA CELULAR ====== */
+@media (max-width: 600px) {
+  .cabecalho h1 {
+    font-size: 1.5rem;
+  }
+
+  .card .valor {
+    font-size: 1.3rem;
+  }
+
+  table.boletim {
+    font-size: 0.82rem;
+  }
+}
