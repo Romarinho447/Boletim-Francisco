@@ -3,7 +3,7 @@
    ========================================================= */
 
 // O link exato gerado na tela do seu Google Sheets
-const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/13xqyosiJv61XSL9uarli7TKhVNW5YMs1/edit?usp=sharing&ouid=104410119680124003165&rtpof=true&sd=true'
+const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/13xqyosiJv61XSL9uarli7TKhVNW5YMs1/edit?usp=sharing&ouid=104410119680124003165&rtpof=true&sd=true';
 
 const MEDIA_MINIMA = 6.0;
 
