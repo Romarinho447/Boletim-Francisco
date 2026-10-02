@@ -1,12 +1,12 @@
 /* =========================================================
-   BOLETIM DIGITAL MULTIDIRECIONAL — script.js
+   BOLETIM DIGITAL MULTIDIRECIONAL — script.js (CORRIGIDO)
    Puxa dados do Sheets e envia digitações de volta em tempo real
    ========================================================= */
 
 // URL de LEITURA (O link CSV que você gerou na publicação da web)
-const URL_LEITURA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQAZx-fcr3xMxzXKaiaByeCT314K1Ne4KxUYWjs5QgtPIeFdqi6Zj9HU40d6zcESGF0Eeqn3WdQQtE-/pub?output=csv';
+const URL_LEITURA = 'https://google.com';
 
-// URL de ESCRITA (Cole aqui o link que você copiou lá no Passo 1 do Apps Script)
+// URL de ESCRITA (Substitua pelo link gerado na implantação do seu Apps Script)
 const URL_ESCRITA_APPS_SCRIPT = 'COLE_AQUI_O_URL_DO_SEU_APPS_SCRIPT';
 
 const MEDIA_MINIMA = 6.0;
@@ -35,7 +35,6 @@ function processarCSV(texto) {
   for (let i = 5; i <= 18; i++) {
     if (!linhas[i]) continue;
     
-    // Divisor inteligente de colunas que ignora vírgulas dentro de aspas
     const colunas = [];
     let dentroDeAspas = false;
     let colunaAtual = '';
@@ -72,7 +71,7 @@ function renderizarInterface(dados) {
 
   dados.forEach((item, index) => {
     const tr = document.createElement('tr');
-    const estiloInput = `background: #2a2e35; border: 1px solid #3a3f47; color: #e6e8eb; width: 60px; text-align: center; border-radius: 4px; padding: 4px; font-size: 0.9rem;`;
+    const estiloInput = `background: #2a2e35; border: 1px solid #3a3f47; color: #e6e8eb; width: 60px; text-align: center; border-radius: 4px; padding: 4px; font-size: 0.9rem; transition: border-color 0.3s;`;
 
     tr.innerHTML = `
       <td style="font-weight: bold; text-align: left;">${item.disciplina}</td>
@@ -90,7 +89,7 @@ function renderizarInterface(dados) {
 
   atualizarCardsResumo();
 
-  // Escuta as digitações para recalcular o site e salvar na planilha
+  // Escuta o evento 'change' (quando o usuário digita e clica fora da caixinha)
   corpoTabela.addEventListener('change', async (evento) => {
     if (evento.target.classList.contains('input-nota')) {
       const disciplina = evento.target.getAttribute('data-disciplina');
@@ -98,26 +97,32 @@ function renderizarInterface(dados) {
       const valor = evento.target.value;
 
       const linhaElemento = evento.target.closest('tr');
-      const n1 = linhaElemento.querySelectorAll('.input-nota')[0].value;
-      const n2 = linhaElemento.querySelectorAll('.input-nota')[1].value;
-      const n3 = linhaElemento.querySelectorAll('.input-nota')[2].value;
+      const inputs = linhaElemento.querySelectorAll('.input-nota');
+      
+      // CORREÇÃO AQUI: Lendo os índices corretos do array de inputs
+      const n1 = inputs[0].value;
+      const n2 = inputs[1].value;
+      const n3 = inputs[2].value;
 
       atualizarLinha(linhaElemento, n1, n2, n3);
       atualizarCardsResumo();
 
-      // Envia a nova nota de forma assíncrona para a planilha do Google
+      // Envia a nova nota para o Google Sheets
       try {
-        evento.target.style.borderColor = '#d9a441'; // Fica amarelo indicando "salvando..."
+        evento.target.style.borderColor = '#d9a441'; // Borda amarela: salvando...
+        
+        // CORREÇÃO AQUI: Enviando como text/plain evita bloqueios de CORS do Google
         await fetch(URL_ESCRITA_APPS_SCRIPT, {
           method: 'POST',
-          mode: 'no-cors', // Evita problemas de segurança entre domínios
-          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ disciplina, campo, valor })
         });
-        evento.target.style.borderColor = '#4caf7d'; // Fica verde indicando "salvo no Sheets!"
+        
+        evento.target.style.borderColor = '#4caf7d'; // Borda verde: sucesso!
       } catch (e) {
         console.error("Erro ao salvar no Sheets:", e);
-        evento.target.style.borderColor = '#ff4a4a'; // Fica vermelho se falhar
+        evento.target.style.borderColor = '#ff4a4a'; // Borda vermelha: erro!
       }
     }
   });
@@ -158,27 +163,32 @@ function atualizarCardsResumo() {
   let contagemMedias = 0;
 
   linhas.forEach(linha => {
-    const mediaTexto = linha.querySelector('.col-media').textContent;
-    if (mediaTexto !== "-") {
-      somaMedias += parseFloat(mediaTexto);
-      contagemMedias++;
+    const mediaCelula = linha.querySelector('.col-media');
+    if (mediaCelula) {
+      const mediaTexto = mediaCelula.textContent;
+      if (mediaTexto !== "-") {
+        somaMedias += parseFloat(mediaTexto);
+        contagemMedias++;
+      }
     }
   });
 
   const mediaGeral = contagemMedias > 0 ? (somaMedias / contagemMedias) : 0;
 
-  containerCards.innerHTML = `
-    <div class="card">
-      <div class="rotulo">Média Geral</div>
-      <div class="valor">${mediaGeral.toFixed(1)}</div>
-    </div>
-    <div class="card">
-      <div class="rotulo">Disciplinas</div>
-      <div class="valor">${linhas.length}</div>
-    </div>
-    <div class="card">
-      <div class="rotulo">Ano Letivo</div>
-      <div class="valor" style="font-size: 1.2rem; padding-top: 5px;">8º Ano</div>
-    </div>
-  `;
+  if (containerCards) {
+    containerCards.innerHTML = `
+      <div class="card">
+        <div class="rotulo">Média Geral</div>
+        <div class="valor">${mediaGeral.toFixed(1)}</div>
+      </div>
+      <div class="card">
+        <div class="rotulo">Disciplinas</div>
+        <div class="valor">${linhas.length}</div>
+      </div>
+      <div class="card">
+        <div class="rotulo">Ano Letivo</div>
+        <div class="valor" style="font-size: 1.2rem; padding-top: 5px;">8º Ano</div>
+      </div>
+    `;
+  }
 }
