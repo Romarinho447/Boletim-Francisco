@@ -1,8 +1,8 @@
 /* =========================================================
-   BOLETIM DIGITAL — script.js (Ajustado para sua Planilha)
+   BOLETIM DIGITAL — script.js (Ajustado para o seu link CSV Real)
    ========================================================= */
 
-// URL configurada especificamente para puxar a aba "Notas" em formato CSV
+// O link exato gerado na tela do seu Google Sheets
 const URL_PLANILHA = 'https://google.com';
 
 const MEDIA_MINIMA = 6.0;
@@ -11,43 +11,49 @@ window.addEventListener('DOMContentLoaded', carregarDadosDaPlanilha);
 
 async function carregarDadosDaPlanilha() {
   try {
-    const resposta = await fetch(URL_PLANILHA);
+    // Usando proxy público para evitar bloqueio de segurança (CORS) ao testar localmente no PC
+    const urlComProxy = 'https://allorigins.win' + encodeURIComponent(URL_PLANILHA);
+    
+    const resposta = await fetch(urlComProxy);
+    if (!resposta.ok) throw new Error('Não foi possível ler a planilha pública.');
+    
     const textoCSV = await resposta.text();
-
     const dados = processarCSV(textoCSV);
 
     renderizarCards(dados);
     renderizarTabela(dados);
 
   } catch (erro) {
-    console.error('Erro ao carregar dados:', erro);
+    console.error('Erro detalhado:', erro);
     document.getElementById('corpo-tabela').innerHTML = `
-      <tr><td colspan="7" style="color:#d9a441; text-align:center;">Erro ao carregar notas. Verifique a publicação da planilha.</td></tr>
+      <tr><td colspan="7" style="color:#d9a441; text-align:center; padding: 20px;">
+        Erro ao carregar notas. Verifique a conexão com a planilha.
+      </td></tr>
     `;
   }
 }
 
 function processarCSV(texto) {
-  // Divide o CSV por linhas, tratando quebras de página comuns
   const linhas = texto.split(/\r?\n/);
   const listaDisciplinas = [];
 
-  // Na sua imagem, os dados de verdade começam na linha 6 (índice 5 do array)
-  // E vão até a linha 19 (índice 18). Vamos ignorar o "TOTAL GERAL" da linha 20.
+  // Na sua planilha real, os dados de notas começam estritamente na linha 6 (índice 5 do JavaScript)
+  // E vão até a linha 19 (índice 18). Vamos ler exatamente esse intervalo.
   for (let i = 5; i <= 18; i++) {
     if (!linhas[i]) continue;
 
-    // Divide as colunas por vírgula
-    const colunas = linhas[i].split(',');
+    // Expressão regular que separa por vírgula mas IGNERA vírgulas dentro de aspas (ex: "8,5")
+    const colunas = linhas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*\$)/g) || linhas[i].split(',');
 
-    // Se a linha estiver vazia ou não tiver o nome da matéria, pula
-    if (!colunas[0] || colunas[0].trim() === "" || colunas[0].includes("TOTAL GERAL")) continue;
+    if (!colunas || colunas.length < 4) continue;
 
-    // Limpa aspas extras que o Google Sheets coloca no CSV
-    const limpar = (texto) => texto ? texto.replace(/"/g, '').trim() : "";
+    const limpar = (txt) => txt ? txt.replace(/"/g, '').trim() : "";
+
+    const disciplina = limpar(colunas[0]);
+    if (disciplina === "" || disciplina.includes("TOTAL GERAL")) continue;
 
     listaDisciplinas.push({
-      disciplina: limpar(colunas[0]),
+      disciplina: disciplina,
       tri1: limpar(colunas[1]),
       tri2: limpar(colunas[2]),
       tri3: limpar(colunas[3])
@@ -62,9 +68,6 @@ function normalizarNota(valor) {
   }
   let numero = typeof valor === "string" ? parseFloat(valor.replace(",", ".")) : Number(valor);
   if (isNaN(numero)) return null;
-  
-  // Se na planilha estiver como 85 em vez de 8.5, faz a divisão
-  if (numero > 10 && numero <= 100) return numero / 10;
   return numero;
 }
 
@@ -100,7 +103,7 @@ function renderizarTabela(dados) {
       <td>${n2 !== null ? n2.toFixed(1) : '-'}</td>
       <td>${n3 !== null ? n3.toFixed(1) : '-'}</td>
       <td style="font-weight: bold;">${media !== null ? media.toFixed(1) : '-'}</td>
-      <td>0</td> <!-- Faltas serão integradas depois se quiser -->
+      <td>0</td> <!-- Campo de faltas padrão zerado -->
       <td class="${situacaoClasse}">${situacaoTexto}</td>
     `;
     corpoTabela.appendChild(tr);
