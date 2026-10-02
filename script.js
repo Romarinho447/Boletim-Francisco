@@ -4,7 +4,7 @@
    ========================================================= */
 
 // URL de LEITURA (O link CSV que você gerou na publicação da web)
-const URL_LEITURA = 'https://google.com';
+const URL_LEITURA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQAZx-fcr3xMxzXKaiaByeCT314K1Ne4KxUYWjs5QgtPIeFdqi6Zj9HU40d6zcESGF0Eeqn3WdQQtE-/pub?output=csv';
 
 // URL de ESCRITA (Cole aqui o link que você copiou lá no Passo 1 do Apps Script)
 const URL_ESCRITA_APPS_SCRIPT = 'COLE_AQUI_O_URL_DO_SEU_APPS_SCRIPT';
