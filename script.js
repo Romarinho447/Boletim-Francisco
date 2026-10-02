@@ -7,7 +7,7 @@
 const URL_LEITURA = 'https://google.com';
 
 // URL de ESCRITA (Substitua pelo link gerado na implantação do seu Apps Script)
-const URL_ESCRITA_APPS_SCRIPT = 'COLE_AQUI_O_URL_DO_SEU_APPS_SCRIPT';
+const URL_ESCRITA_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzBIISfkzxOF_2YlmE3NRlVoX0ow-hx8Ej6qqSiM3qvBrMhfqf94gs-qnftKIFceeAu/exec';
 
 const MEDIA_MINIMA = 6.0;
 
