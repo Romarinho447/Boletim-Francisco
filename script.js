@@ -3,7 +3,7 @@
    ========================================================= */
 
 // O link exato gerado na tela do seu Google Sheets
-const URL_PLANILHA = 'https://google.com';
+const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRfFh2aVAYYSusMSpQ6CLOkXe9HEoAKSJQF5xACqcNBmfcRvB5UnbtfSNzfHLRVww/pub?gid=548247285&single=true&output=csv;
 
 const MEDIA_MINIMA = 6.0;
 
