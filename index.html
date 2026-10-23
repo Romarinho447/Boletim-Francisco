@@ -13,36 +13,85 @@
   <!-- Cabeçalho com título e subtítulo -->
   <header class="cabecalho">
     <h1>Boletim Digital</h1>
-    <p class="subtitulo">8º Ano — Estudante Exemplo</p>
+    <p class="subtitulo">8º Ano — Turma 8A — Chamada 10</p>
   </header>
 
   <main class="conteudo">
 
-    <!-- Área dos cards de resumo -->
-    <section class="cards" id="cards">
-      <!-- Os cards serão preenchidos pelo JavaScript -->
+    <!-- Área de acesso do estudante -->
+    <section class="acesso" id="area-acesso">
+      <h2>Acessar boletim</h2>
+      <p>Digite seu PIN para carregar suas notas e faltas.</p>
+
+      <form id="form-acesso">
+        <label for="campo-pin">PIN</label>
+        <input
+          type="password"
+          id="campo-pin"
+          name="pin"
+          inputmode="numeric"
+          autocomplete="off"
+          required
+          aria-describedby="mensagem-acesso"
+        />
+        <button type="submit" id="botao-entrar">Entrar</button>
+      </form>
+
+      <p id="mensagem-acesso" role="status" aria-live="polite"></p>
     </section>
 
-    <!-- Área da tabela de disciplinas -->
-    <section class="tabela-area">
-      <h2>Disciplinas</h2>
-      <div class="tabela-responsiva">
-        <table class="boletim">
-          <thead>
-            <tr>
-              <th>Disciplina</th>
-              <th>1º Tri</th>
-              <th>2º Tri</th>
-              <th>3º Tri</th>
-              <th>Média</th>
-              <th>Faltas</th>
-              <th>Situação</th>
-            </tr>
-          </thead>
-          <!-- As linhas serão criadas pelo JavaScript -->
-          <tbody id="corpo-tabela"></tbody>
-        </table>
+    <!-- Conteúdo do boletim, exibido após o acesso -->
+    <section id="area-boletim" hidden>
+
+      <div class="barra-acoes">
+        <p id="status-boletim" role="status" aria-live="polite"></p>
+        <button type="button" id="botao-editar">Alterar dados</button>
       </div>
+
+      <!-- Área dos cards de resumo -->
+      <section class="cards" id="cards">
+        <!-- Os cards serão preenchidos pelo JavaScript -->
+      </section>
+
+      <!-- Área da tabela de disciplinas -->
+      <section class="tabela-area">
+        <h2>Disciplinas</h2>
+        <div class="tabela-responsiva">
+          <table class="boletim">
+            <thead>
+              <tr>
+                <th>Disciplina</th>
+                <th>1º Tri</th>
+                <th>2º Tri</th>
+                <th>3º Tri</th>
+                <th>Média</th>
+                <th>Faltas</th>
+                <th>Situação</th>
+              </tr>
+            </thead>
+            <!-- As linhas serão criadas pelo JavaScript -->
+            <tbody id="corpo-tabela"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Editor de notas e faltas -->
+      <section class="editor" id="area-editor" hidden>
+        <h2>Alterar dados</h2>
+        <p>Edite as notas e faltas. O nome das disciplinas não pode ser alterado.</p>
+
+        <form id="form-edicao">
+          <div id="campos-edicao"></div>
+
+          <div class="editor-acoes">
+            <button type="submit" id="botao-salvar">Salvar alterações</button>
+            <button type="button" id="botao-cancelar">Cancelar</button>
+          </div>
+
+          <p id="mensagem-edicao" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
     </section>
 
   </main>
