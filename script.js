@@ -1,15 +1,15 @@
 /* =========================================================
-   BOLETIM DIGITAL — Integração com a API do professor
-   Preserva as disciplinas e os dados demonstrativos existentes.
+   BOLETIM DIGITAL — versão local, sem API
+   As notas e faltas são guardadas no navegador (localStorage).
    ========================================================= */
 
 const CONFIG_ALUNO = {
   turma: "8A",
-  numeroChamada: 10,
-  apiUrl: "https://boletim-api.profbt.com.br"
+  numeroChamada: 10
 };
 
 const MEDIA_MINIMA = 6.0;
+const CHAVE_BOLETIM = "boletimFranciscoDados";
 
 let pinSessao = null;
 let dadosBoletim = [];
@@ -29,27 +29,42 @@ function iniciar() {
 }
 
 /* =========================================================
-   DADOS DEMONSTRATIVOS ORIGINAIS
-   Usados somente quando a API não possui dados salvos.
+   DADOS INICIAIS — 15 DISCIPLINAS
+   Notas copiadas do print da planilha.
    ========================================================= */
 
 function obterDadosDemonstrativos() {
-  return [
-    { disciplina: "Língua Portuguesa", tri1: 75, tri2: 82, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 },
-    { disciplina: "Matemática", tri1: 82, tri2: 75, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 },
-    { disciplina: "Ciências", tri1: 80, tri2: 85, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 },
-    { disciplina: "História", tri1: 78, tri2: 80, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 },
-    { disciplina: "Geografia", tri1: 85, tri2: 88, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 },
-    { disciplina: "Inglês", tri1: 90, tri2: 85, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 },
-    { disciplina: "Educação Física", tri1: 90, tri2: 92, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 },
-    { disciplina: "Arte", tri1: 85, tri2: 90, tri3: null, faltas1: 0, faltas2: 0, faltas3: 0 }
+  const disciplinas = [
+    ["Língua Portuguesa", 9.5, 9.1],
+    ["Matemática", 9.0, 9.0],
+    ["Ciências", 8.9, 9.4],
+    ["História", 10.0, 9.7],
+    ["Geografia", 10.0, 8.0],
+    ["Língua Inglesa", 9.2, 10.0],
+    ["Arte", 8.5, 10.0],
+    ["Educação Física", 9.1, 9.0],
+    ["Educação Digital", 9.5, 10.0],
+    ["Educação Financeira", 8.8, 9.8],
+    ["Estudo Orientado", 10.0, 9.5],
+    ["Redação e Leitura", 9.2, 9.0],
+    ["Pensamento Lógico", 9.0, 9.4],
+    ["Literatura Arte e Movimento", 7.8, 6.4],
+    ["Práticas Experimentais", 8.7, 9.8]
   ];
+
+  return disciplinas.map(([disciplina, tri1, tri2]) => ({
+    disciplina,
+    tri1,
+    tri2,
+    tri3: null,
+    faltas1: 0,
+    faltas2: 0,
+    faltas3: 0
+  }));
 }
 
 /* =========================================================
-   NORMALIZAÇÃO DAS NOTAS ANTIGAS
-   75 -> 7,5 | 82 -> 8,2 | 100 -> 10
-   "8,5" -> 8,5 | 8.5 -> 8,5 | null -> sem nota
+   NORMALIZAÇÃO
    ========================================================= */
 
 function normalizarNotaAntiga(valor) {
@@ -67,14 +82,16 @@ function normalizarNotaAntiga(valor) {
     numero = valor;
   } else {
     const texto = String(valor).trim().replace(",", ".");
+
     if (texto === "") return null;
+
     numero = Number(texto);
   }
 
   if (!Number.isFinite(numero)) return null;
 
   if (numero > 10 && numero <= 100) {
-    numero = numero / 10;
+    numero /= 10;
   }
 
   return numero >= 0 && numero <= 10 ? numero : null;
@@ -96,24 +113,30 @@ function normalizarDisciplina(item) {
     tri1: normalizarNotaAntiga(item.tri1),
     tri2: normalizarNotaAntiga(item.tri2),
     tri3: normalizarNotaAntiga(item.tri3),
-    faltas1: normalizarFaltaAntiga(item.faltas1 ?? item.faltas_tri1 ?? 0),
-    faltas2: normalizarFaltaAntiga(item.faltas2 ?? item.faltas_tri2 ?? 0),
-    faltas3: normalizarFaltaAntiga(item.faltas3 ?? item.faltas_tri3 ?? 0)
+    faltas1: normalizarFaltaAntiga(
+      item.faltas1 ?? item.faltas_tri1 ?? 0
+    ),
+    faltas2: normalizarFaltaAntiga(
+      item.faltas2 ?? item.faltas_tri2 ?? 0
+    ),
+    faltas3: normalizarFaltaAntiga(
+      item.faltas3 ?? item.faltas_tri3 ?? 0
+    )
   };
 }
 
 /* =========================================================
-   ACESSO À API
+   ENTRADA — NÃO UTILIZA A API
+   O PIN não é validado nesta versão.
    ========================================================= */
 
-async function entrar(evento) {
+function entrar(evento) {
   evento.preventDefault();
 
   if (carregando) return;
 
   const campoPin = $("campo-pin");
   const pinDigitado = campoPin.value.trim();
-  const botao = $("botao-entrar");
 
   if (!pinDigitado) {
     mostrarMensagemAcesso("Digite seu PIN.");
@@ -122,106 +145,42 @@ async function entrar(evento) {
   }
 
   carregando = true;
-  botao.disabled = true;
-  botao.textContent = "Conectando...";
-  mostrarMensagemAcesso("Conectando...");
 
   try {
-    const resposta = await fetch(`${CONFIG_ALUNO.apiUrl}/api/v1/boletins/abrir`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        turma: CONFIG_ALUNO.turma,
-        numero_chamada: CONFIG_ALUNO.numeroChamada,
-        pin: pinDigitado
-      })
-    });
+    const dadosSalvos = localStorage.getItem(CHAVE_BOLETIM);
 
-    let resultado;
+    if (dadosSalvos) {
+      const parseados = JSON.parse(dadosSalvos);
 
-    try {
-      resultado = await resposta.json();
-    } catch {
-      resultado = null;
+      if (!Array.isArray(parseados) || parseados.length === 0) {
+        throw new Error("Formato dos dados locais inválido.");
+      }
+
+      dadosBoletim = parseados.map(normalizarDisciplina);
+    } else {
+      dadosBoletim = obterDadosDemonstrativos();
     }
-
-    if (resposta.status === 401) {
-      mostrarMensagemAcesso("Turma, chamada ou PIN inválidos.");
-      return;
-    }
-
-    if (resposta.status === 429) {
-      mostrarMensagemAcesso("Muitas tentativas. Aguarde um minuto e tente novamente.");
-      return;
-    }
-
-    if (!resposta.ok) {
-      mostrarMensagemAcesso(
-        obterMensagemErro(resultado, "Não foi possível abrir o boletim. Tente novamente.")
-      );
-      return;
-    }
-
-    if (!resultado || !Object.prototype.hasOwnProperty.call(resultado, "dados")) {
-      mostrarMensagemAcesso("A resposta do servidor não contém os dados esperados.");
-      return;
-    }
-
-    pinSessao = pinDigitado;
-    campoPin.value = "";
-
-   
-if (
-  resultado.dados === null ||
-  !Array.isArray(resultado.dados.disciplinas)
-) {
-  pinSessao = null;
-  mostrarMensagemAcesso(
-    "A API ainda não possui disciplinas cadastradas para este boletim."
-  );
-  return;
-}
-
-dadosBoletim = resultado.dados.disciplinas.map(normalizarDisciplina);
-
-    modoEdicao = false;
-    $("area-acesso").hidden = true;
-    $("area-boletim").hidden = false;
-    $("area-editor").hidden = true;
-
-    $("status-boletim").textContent =
-      resultado.dados === null
-        ? "Dados demonstrativos. As alterações só serão salvas quando você clicar em Salvar alterações."
-        : "Boletim carregado do servidor.";
-
-    renderizarInterface();
   } catch (erro) {
     mostrarMensagemAcesso(
-      "Não foi possível conectar ao servidor. Tente novamente."
+      "Não foi possível ler os dados salvos neste navegador."
     );
-  } finally {
     carregando = false;
-    botao.disabled = false;
-    botao.textContent = "Entrar";
-  }
-}
-
-function obterMensagemErro(resultado, padrao) {
-  if (resultado && typeof resultado.detail === "string") {
-    return resultado.detail;
+    return;
   }
 
-  if (resultado && typeof resultado.message === "string") {
-    return resultado.message;
-  }
+  carregando = false;
+  pinSessao = null;
+  campoPin.value = "";
+  modoEdicao = false;
 
-  if (resultado && typeof resultado.mensagem === "string") {
-    return resultado.mensagem;
-  }
+  $("area-acesso").hidden = true;
+  $("area-boletim").hidden = false;
+  $("area-editor").hidden = true;
 
-  return padrao;
+  $("status-boletim").textContent =
+    "Boletim local: os dados ficam salvos somente neste navegador.";
+
+  renderizarInterface();
 }
 
 function mostrarMensagemAcesso(mensagem) {
@@ -278,7 +237,10 @@ function renderizarInterface() {
 }
 
 function formatarNota(valor) {
-  if (valor === null || valor === undefined) return "—";
+  if (valor === null || valor === undefined) {
+    return "—";
+  }
+
   return valor.toLocaleString("pt-BR", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
@@ -338,12 +300,21 @@ function atualizarCardsResumo() {
     ? somaMedias / contagemMedias
     : 0;
 
-  criarCard(containerCards, "Média Geral", mediaGeral.toLocaleString("pt-BR", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1
-  }));
+  criarCard(
+    containerCards,
+    "Média Geral",
+    mediaGeral.toLocaleString("pt-BR", {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    })
+  );
 
-  criarCard(containerCards, "Disciplinas", String(dadosBoletim.length));
+  criarCard(
+    containerCards,
+    "Disciplinas",
+    String(dadosBoletim.length)
+  );
+
   criarCard(containerCards, "Ano Letivo", "8º Ano");
 }
 
@@ -376,6 +347,7 @@ function abrirEditor() {
   if (modoEdicao || salvando) return;
 
   modoEdicao = true;
+
   $("mensagem-edicao").textContent = "";
   $("area-editor").hidden = false;
 
@@ -426,7 +398,9 @@ function abrirEditor() {
 
       input.setAttribute("aria-describedby", erro.id);
 
-      input.addEventListener("input", () => validarCampoVisual(input, erro));
+      input.addEventListener("input", () => {
+        validarCampoVisual(input, erro);
+      });
 
       grupoCampo.append(label, input, erro);
       grupo.appendChild(grupoCampo);
@@ -436,7 +410,11 @@ function abrirEditor() {
   });
 
   $("botao-editar").disabled = true;
-  $("area-editor").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  $("area-editor").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 function valorParaEditor(valor) {
@@ -450,6 +428,7 @@ function validarCampoVisual(input, elementoErro) {
 
   input.classList.toggle("invalido", !resultado.valido);
   input.setAttribute("aria-invalid", String(!resultado.valido));
+
   elementoErro.textContent = resultado.valido ? "" : resultado.erro;
 }
 
@@ -500,7 +479,10 @@ function validarValor(valor, tipo) {
     return { valido: true, valor: numero };
   }
 
-  return { valido: false, erro: "Campo inválido." };
+  return {
+    valido: false,
+    erro: "Campo inválido."
+  };
 }
 
 function cancelarEdicao() {
@@ -515,14 +497,20 @@ function cancelarEdicao() {
 function coletarEdicao() {
   const inputs = $("campos-edicao").querySelectorAll(".campo-edicao");
   const novosDados = dadosBoletim.map((item) => ({ ...item }));
+
   let primeiroInvalido = null;
 
   for (const input of inputs) {
-    const resultado = validarValor(input.value, input.dataset.tipo);
+    const resultado = validarValor(
+      input.value,
+      input.dataset.tipo
+    );
+
     const elementoErro = $(`${input.id}-erro`);
 
     input.classList.toggle("invalido", !resultado.valido);
     input.setAttribute("aria-invalid", String(!resultado.valido));
+
     elementoErro.textContent = resultado.valido ? "" : resultado.erro;
 
     if (!resultado.valido) {
@@ -545,10 +533,10 @@ function coletarEdicao() {
 }
 
 /* =========================================================
-   SALVAMENTO NA API
+   SALVAMENTO LOCAL — NÃO UTILIZA A API
    ========================================================= */
 
-async function salvarAlteracoes(evento) {
+function salvarAlteracoes(evento) {
   evento.preventDefault();
 
   if (salvando || !modoEdicao) return;
@@ -572,67 +560,25 @@ async function salvarAlteracoes(evento) {
   $("mensagem-edicao").textContent = "Salvando...";
 
   try {
-    const resposta = await fetch(`${CONFIG_ALUNO.apiUrl}/api/v1/boletins/salvar`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        turma: CONFIG_ALUNO.turma,
-        numero_chamada: CONFIG_ALUNO.numeroChamada,
-        pin: pinSessao,
-        dados: {
-          disciplinas: novosDados.map((item) => ({
-            disciplina: item.disciplina,
-            tri1: item.tri1,
-            tri2: item.tri2,
-            tri3: item.tri3,
-            faltas1: item.faltas1,
-            faltas2: item.faltas2,
-            faltas3: item.faltas3
-          }))
-        }
-      })
-    });
-
-    let resultado;
-
-    try {
-      resultado = await resposta.json();
-    } catch {
-      resultado = null;
-    }
-
-    if (resposta.status === 401) {
-      $("mensagem-edicao").textContent =
-        "A sessão não foi autorizada. Entre novamente com seu PIN.";
-      return;
-    }
-
-    if (resposta.status === 429) {
-      $("mensagem-edicao").textContent =
-        "Muitas tentativas. Aguarde um minuto e tente novamente.";
-      return;
-    }
-
-    if (!resposta.ok) {
-      $("mensagem-edicao").textContent = obterMensagemErro(
-        resultado,
-        "Não foi possível salvar. Suas alterações continuam no editor. Tente novamente."
-      );
-      return;
-    }
+    localStorage.setItem(
+      CHAVE_BOLETIM,
+      JSON.stringify(novosDados)
+    );
 
     dadosBoletim = novosDados;
     renderizarInterface();
 
     modoEdicao = false;
     $("area-editor").hidden = true;
-    $("status-boletim").textContent = "Boletim atualizado.";
-    $("mensagem-edicao").textContent = "Dados salvos com sucesso.";
+
+    $("status-boletim").textContent =
+      "Boletim salvo localmente neste navegador.";
+
+    $("mensagem-edicao").textContent =
+      "Dados salvos com sucesso!";
   } catch (erro) {
     $("mensagem-edicao").textContent =
-      "Não foi possível conectar ao servidor. Suas alterações continuam no editor. Tente novamente.";
+      "Não foi possível salvar. Verifique o armazenamento do navegador.";
   } finally {
     salvando = false;
     botaoSalvar.disabled = false;
