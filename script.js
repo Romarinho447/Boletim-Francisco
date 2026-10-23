@@ -172,17 +172,19 @@ async function entrar(evento) {
     pinSessao = pinDigitado;
     campoPin.value = "";
 
-    if (resultado.dados !== null) {
-      if (!Array.isArray(resultado.dados.disciplinas)) {
-        pinSessao = null;
-        mostrarMensagemAcesso("Os dados recebidos do servidor são inválidos.");
-        return;
-      }
+   
+if (
+  resultado.dados === null ||
+  !Array.isArray(resultado.dados.disciplinas)
+) {
+  pinSessao = null;
+  mostrarMensagemAcesso(
+    "A API ainda não possui disciplinas cadastradas para este boletim."
+  );
+  return;
+}
 
-      dadosBoletim = resultado.dados.disciplinas.map(normalizarDisciplina);
-    } else {
-      dadosBoletim = obterDadosDemonstrativos().map(normalizarDisciplina);
-    }
+dadosBoletim = resultado.dados.disciplinas.map(normalizarDisciplina);
 
     modoEdicao = false;
     $("area-acesso").hidden = true;
