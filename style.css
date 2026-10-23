@@ -1,14 +1,13 @@
 /* ====== VARIÁVEIS DE COR ====== */
-/* Facilita trocar as cores depois em um só lugar */
 :root {
-  --fundo: #1e2126;          /* fundo escuro da página */
-  --fundo-card: #2a2e35;     /* fundo um pouco mais claro dos cards */
-  --fundo-tabela: #23272e;   /* fundo das linhas da tabela */
-  --borda: #3a3f47;          /* borda suave */
-  --principal: #4a90d9;      /* azul suave (cor principal) */
-  --secundaria: #a0a8b3;     /* cinza claro (cor secundária) */
-  --texto: #e6e8eb;          /* texto claro */
-  --texto-suave: #b0b6bf;    /* texto secundário */
+  --fundo: #1e2126;
+  --fundo-card: #2a2e35;
+  --fundo-tabela: #23272e;
+  --borda: #3a3f47;
+  --principal: #4a90d9;
+  --secundaria: #a0a8b3;
+  --texto: #e6e8eb;
+  --texto-suave: #b0b6bf;
 }
 
 /* ====== RESET BÁSICO ====== */
@@ -25,6 +24,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   line-height: 1.5;
   padding: 16px;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 /* ====== CABEÇALHO ====== */
@@ -53,10 +56,105 @@ body {
   margin: 0 auto;
 }
 
+/* ====== ÁREA DE ACESSO ====== */
+.acesso {
+  max-width: 420px;
+  margin: 36px auto;
+  padding: 24px;
+  background-color: var(--fundo-card);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.acesso h2,
+.editor h2 {
+  color: var(--principal);
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.acesso p,
+.editor > p {
+  color: var(--texto-suave);
+  margin-bottom: 16px;
+}
+
+#form-acesso {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#form-acesso label {
+  color: var(--texto);
+  font-weight: bold;
+}
+
+#campo-pin {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  background-color: var(--fundo);
+  color: var(--texto);
+  font-size: 1rem;
+  outline-offset: 3px;
+}
+
+#mensagem-acesso,
+#mensagem-edicao {
+  margin-top: 14px;
+  margin-bottom: 0;
+  min-height: 1.5em;
+  overflow-wrap: anywhere;
+}
+
+/* ====== BOTÕES ====== */
+button {
+  padding: 10px 16px;
+  border: 1px solid var(--principal);
+  border-radius: 6px;
+  background-color: var(--principal);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--principal);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ====== BARRA DE AÇÕES ====== */
+.barra-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+#status-boletim {
+  color: var(--texto-suave);
+  overflow-wrap: anywhere;
+}
+
 /* ====== CARDS DE RESUMO ====== */
 .cards {
   display: grid;
-  /* Cria colunas automáticas que se ajustam ao tamanho da tela */
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
   margin-bottom: 32px;
@@ -89,7 +187,6 @@ body {
   margin-bottom: 12px;
 }
 
-/* Permite rolagem horizontal em telas pequenas */
 .tabela-responsiva {
   overflow-x: auto;
   border-radius: 10px;
@@ -99,7 +196,7 @@ body {
 table.boletim {
   width: 100%;
   border-collapse: collapse;
-  min-width: 640px; /* garante que a tabela não fique apertada demais */
+  min-width: 640px;
   font-size: 0.9rem;
 }
 
@@ -122,19 +219,49 @@ table.boletim th:first-child {
   text-align: left;
 }
 
-/* Linhas alternadas para facilitar a leitura */
 table.boletim tbody tr:nth-child(even) {
   background-color: var(--fundo-tabela);
 }
 
-/* ====== CORES DAS SITUAÇÕES ====== */
+/* ====== CAMPOS DE NOTAS E FALTAS ====== */
+.input-nota,
+.input-falta,
+.campo-edicao {
+  background-color: var(--fundo-card);
+  border: 1px solid var(--borda);
+  color: var(--texto);
+  border-radius: 4px;
+  padding: 6px;
+  width: 76px;
+  text-align: center;
+  font: inherit;
+}
+
+.campo-edicao {
+  width: 100%;
+}
+
+.campo-edicao.invalido {
+  border-color: #ff4a4a;
+  outline-color: #ff4a4a;
+}
+
+.erro-campo {
+  display: block;
+  min-height: 1.3em;
+  color: #ff7777;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+/* ====== SITUAÇÕES ====== */
 .situacao-bom {
-  color: #4caf7d; /* verde suave */
+  color: #4caf7d;
   font-weight: bold;
 }
 
 .situacao-atencao {
-  color: #d9a441; /* âmbar suave */
+  color: #d9a441;
   font-weight: bold;
 }
 
@@ -142,8 +269,69 @@ table.boletim tbody tr:nth-child(even) {
   color: var(--secundaria);
 }
 
+/* ====== EDITOR DE DADOS ====== */
+.editor {
+  margin-top: 32px;
+  padding: 20px;
+  background-color: var(--fundo-card);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+#campos-edicao {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.grupo-disciplina {
+  padding: 14px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.grupo-disciplina h3 {
+  color: var(--principal);
+  font-size: 1rem;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+
+.grupo-campo {
+  margin-bottom: 12px;
+}
+
+.grupo-campo:last-child {
+  margin-bottom: 0;
+}
+
+.grupo-campo label {
+  display: block;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.editor-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#botao-cancelar {
+  background-color: transparent;
+  color: var(--texto);
+  border-color: var(--borda);
+}
+
 /* ====== AJUSTES PARA CELULAR ====== */
 @media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
   .cabecalho h1 {
     font-size: 1.5rem;
   }
@@ -154,5 +342,20 @@ table.boletim tbody tr:nth-child(even) {
 
   table.boletim {
     font-size: 0.82rem;
+  }
+
+  .acesso,
+  .editor {
+    padding: 16px;
+  }
+
+  .barra-acoes {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .barra-acoes button,
+  .editor-acoes button {
+    width: 100%;
   }
 }
