@@ -17,7 +17,6 @@
   box-sizing: border-box;
 }
 
-/* ====== CORPO DA PÁGINA ====== */
 body {
   background-color: var(--fundo);
   color: var(--texto);
@@ -180,6 +179,53 @@ button:disabled {
   color: var(--principal);
 }
 
+/* ====== GRÁFICOS ====== */
+.graficos-area {
+  margin-bottom: 32px;
+}
+
+.graficos-area > h2 {
+  font-size: 1.3rem;
+  color: var(--principal);
+  margin-bottom: 16px;
+}
+
+.graficos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.grafico-card {
+  min-width: 0;
+  padding: 18px;
+  background-color: var(--fundo-card);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.grafico-card h3 {
+  color: var(--texto);
+  font-size: 1rem;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.grafico-container {
+  position: relative;
+  width: 100%;
+  height: 280px;
+}
+
+.grafico-card:last-child {
+  grid-column: 1 / -1;
+}
+
+.grafico-card:last-child .grafico-container {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
 /* ====== ÁREA DA TABELA ====== */
 .tabela-area h2 {
   font-size: 1.3rem;
@@ -326,7 +372,21 @@ table.boletim tbody tr:nth-child(even) {
   border-color: var(--borda);
 }
 
-/* ====== AJUSTES PARA CELULAR ====== */
+/* ====== RESPONSIVIDADE ====== */
+@media (max-width: 800px) {
+  .graficos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grafico-card:last-child {
+    grid-column: auto;
+  }
+
+  .grafico-card:last-child .grafico-container {
+    max-width: none;
+  }
+}
+
 @media (max-width: 600px) {
   body {
     padding: 10px;
@@ -357,5 +417,9 @@ table.boletim tbody tr:nth-child(even) {
   .barra-acoes button,
   .editor-acoes button {
     width: 100%;
+  }
+
+  .grafico-container {
+    height: 250px;
   }
 }

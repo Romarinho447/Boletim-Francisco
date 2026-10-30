@@ -7,14 +7,12 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <header class="cabecalho">
     <h1>Boletim Digital</h1>
     <p class="subtitulo">8º Ano — Turma 8A — Chamada 10</p>
   </header>
 
   <main class="conteudo">
-
     <section class="acesso" id="area-acesso">
       <h2>Acessar boletim</h2>
       <p>Digite seu PIN para carregar suas notas e faltas.</p>
@@ -37,13 +35,40 @@
     </section>
 
     <section id="area-boletim" hidden>
-
       <div class="barra-acoes">
         <p id="status-boletim" role="status" aria-live="polite"></p>
         <button type="button" id="botao-editar">Alterar dados</button>
       </div>
 
       <section class="cards" id="cards"></section>
+
+      <!-- GRÁFICOS -->
+      <section class="graficos-area">
+        <h2>Desempenho escolar</h2>
+
+        <div class="graficos-grid">
+          <article class="grafico-card">
+            <h3>Média por disciplina</h3>
+            <div class="grafico-container">
+              <canvas id="grafico-disciplinas"></canvas>
+            </div>
+          </article>
+
+          <article class="grafico-card">
+            <h3>Evolução das médias</h3>
+            <div class="grafico-container">
+              <canvas id="grafico-evolucao"></canvas>
+            </div>
+          </article>
+
+          <article class="grafico-card">
+            <h3>Faltas por trimestre</h3>
+            <div class="grafico-container">
+              <canvas id="grafico-faltas"></canvas>
+            </div>
+          </article>
+        </div>
+      </section>
 
       <section class="tabela-area">
         <h2>Disciplinas</h2>
@@ -81,11 +106,10 @@
           <p id="mensagem-edicao" role="status" aria-live="polite"></p>
         </form>
       </section>
-
     </section>
-
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
