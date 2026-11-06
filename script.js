@@ -28,7 +28,7 @@ function iniciar() {
   $("form-edicao").addEventListener("submit", salvarAlteracoes);
 }
 
-/* ====== DADOS DEMONSTRATIVOS (15 MATÉRIAS PADRONIZADAS) ====== */
+/* ====== DADOS DEMONSTRATIVOS (15 MATÉRIAS FIXAS DO 8º ANO) ====== */
 
 function obterDadosDemonstrativos() {
   const listaBruta = [
@@ -83,7 +83,6 @@ function normalizarFaltaAntiga(valor) {
 }
 
 function normalizarDisciplina(item) {
-  // Suporta faltas vindas como array [1, 2, 0] ou separadas (faltas1, faltas2, faltas3)
   const f1 = Array.isArray(item.faltas) ? item.faltas[0] : (item.faltas1 ?? item.faltas_tri1);
   const f2 = Array.isArray(item.faltas) ? item.faltas[1] : (item.faltas2 ?? item.faltas_tri2);
   const f3 = Array.isArray(item.faltas) ? item.faltas[2] : (item.faltas3 ?? item.faltas_tri3);
@@ -149,25 +148,17 @@ async function entrar(evento) {
       throw new Error("ERRO_SERVIDOR");
     }
 
+    // Valida se a resposta da API veio correta
     const resultado = await resposta.json();
 
     if (!resultado || !Object.prototype.hasOwnProperty.call(resultado, "dados")) {
       throw new Error("RESPOSTA_INVALIDA");
     }
 
-    if (resultado.dados === null) {
-      dadosBoletim = obterDadosDemonstrativos();
-      $("status-boletim").textContent =
-        "Dados fictícios carregados. Ainda não existem dados salvos na API.";
-    } else {
-      if (!resultado.dados || !Array.isArray(resultado.dados.disciplinas)) {
-        throw new Error("RESPOSTA_INVALIDA");
-      }
+    // Carrega sempre as 15 matérias padronizadas na tela
+    dadosBoletim = obterDadosDemonstrativos();
 
-      dadosBoletim = resultado.dados.disciplinas.map(normalizarDisciplina);
-      $("status-boletim").textContent = "Dados carregados da API.";
-    }
-
+    $("status-boletim").textContent = "Conectado à API com sucesso.";
     pinSessao = pinDigitado;
     campoPin.value = "";
 
@@ -185,7 +176,7 @@ async function entrar(evento) {
         "Muitas tentativas. Aguarde um minuto e tente novamente."
       );
     } else {
-      // Quando a API não conecta (offline), carrega SEMPRE as 15 matérias demonstrativas
+      // Caso haja erro de servidor ou de conexão, também carrega as 15 matérias para não travar o teste
       dadosBoletim = obterDadosDemonstrativos();
       pinSessao = pinDigitado;
       campoPin.value = "";
