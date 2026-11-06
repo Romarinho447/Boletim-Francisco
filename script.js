@@ -28,28 +28,28 @@ function iniciar() {
   $("form-edicao").addEventListener("submit", salvarAlteracoes);
 }
 
-/* ====== DADOS DEMONSTRATIVOS (15 MATÉRIAS DO 8º ANO) ====== */
+/* ====== DADOS DEMONSTRATIVOS (15 MATÉRIAS PADRONIZADAS) ====== */
 
 function obterDadosDemonstrativos() {
-  const disciplinas = [
-    { disciplina: "Língua Portuguesa", tri1: 8.2, tri2: 7.8, tri3: 8.5, faltas1: 2, faltas2: 1, faltas3: 1 },
-    { disciplina: "Matemática", tri1: 5.2, tri2: 5.8, tri3: null, faltas1: 3, faltas2: 2, faltas3: 1 },
-    { disciplina: "Ciências", tri1: 8.1, tri2: 7.6, tri3: 8.0, faltas1: 1, faltas2: 2, faltas3: 0 },
-    { disciplina: "História", tri1: 7.0, tri2: 8.4, tri3: null, faltas1: 1, faltas2: 1, faltas3: 1 },
-    { disciplina: "Geografia", tri1: 6.8, tri2: 7.3, tri3: 7.9, faltas1: 0, faltas2: 1, faltas3: 1 },
-    { disciplina: "Língua Inglesa", tri1: 8.6, tri2: 8.1, tri3: 8.7, faltas1: 1, faltas2: 0, faltas3: 0 },
-    { disciplina: "Arte", tri1: 9.0, tri2: 9.2, tri3: null, faltas1: 1, faltas2: 1, faltas3: 0 },
-    { disciplina: "Educação Física", tri1: 9.5, tri2: 9.0, tri3: 9.4, faltas1: 0, faltas2: 1, faltas3: 0 },
-    { disciplina: "Educação Digital", tri1: 8.8, tri2: 9.1, tri3: 9.3, faltas1: 1, faltas2: 0, faltas3: 1 },
-    { disciplina: "Educação Financeira", tri1: 7.4, tri2: 7.8, tri3: null, faltas1: 1, faltas2: 1, faltas3: 1 },
-    { disciplina: "Estudo Orientado", tri1: 8.0, tri2: 8.3, tri3: 8.5, faltas1: 0, faltas2: 1, faltas3: 0 },
-    { disciplina: "Redação e Leitura", tri1: 6.2, tri2: 6.8, tri3: null, faltas1: 2, faltas2: 1, faltas3: 1 },
-    { disciplina: "Pensamento Lógico", tri1: 4.8, tri2: 5.6, tri3: 6.0, faltas1: 2, faltas2: 2, faltas3: 1 },
-    { disciplina: "Literatura Arte e Movimento", tri1: 7.7, tri2: 8.0, tri3: null, faltas1: 1, faltas2: 0, faltas3: 1 },
-    { disciplina: "Práticas Experimentais", tri1: 5.8, tri2: 6.2, tri3: 6.4, faltas1: 1, faltas2: 1, faltas3: 1 }
+  const listaBruta = [
+    { disciplina: "Língua Portuguesa", tri1: 82, tri2: "7,8", tri3: 85, faltas1: 2, faltas2: 1, faltas3: 1 },
+    { disciplina: "Matemática", tri1: 52, tri2: "5,8", tri3: null, faltas1: 3, faltas2: 2, faltas3: 1 },
+    { disciplina: "Ciências", tri1: "8,1", tri2: 76, tri3: 8.0, faltas1: 1, faltas2: 2, faltas3: 0 },
+    { disciplina: "História", tri1: 7.0, tri2: 84, tri3: null, faltas1: 1, faltas2: 1, faltas3: 1 },
+    { disciplina: "Geografia", tri1: 68, tri2: 7.3, tri3: "7,9", faltas1: 0, faltas2: 1, faltas3: 1 },
+    { disciplina: "Língua Inglesa", tri1: 86, tri2: "8,1", tri3: 8.7, faltas1: 1, faltas2: 0, faltas3: 0 },
+    { disciplina: "Arte", tri1: 9.0, tri2: 92, tri3: null, faltas1: 1, faltas2: 1, faltas3: 0 },
+    { disciplina: "Educação Física", tri1: 95, tri2: 9.0, tri3: "9,4", faltas1: 0, faltas2: 1, faltas3: 0 },
+    { disciplina: "Educação Digital", tri1: 88, tri2: 9.1, tri3: 93, faltas1: 1, faltas2: 0, faltas3: 1 },
+    { disciplina: "Educação Financeira", tri1: 74, tri2: "7,8", tri3: null, faltas1: 1, faltas2: 1, faltas3: 1 },
+    { disciplina: "Estudo Orientado", tri1: 8.0, tri2: 83, tri3: "8,5", faltas1: 0, faltas2: 1, faltas3: 0 },
+    { disciplina: "Redação e Leitura", tri1: 62, tri2: "6,8", tri3: null, faltas1: 2, faltas2: 1, faltas3: 1 },
+    { disciplina: "Pensamento Lógico", tri1: 48, tri2: 5.6, tri3: "6,0", faltas1: 2, faltas2: 2, faltas3: 1 },
+    { disciplina: "Literatura Arte e Movimento", tri1: "7,7", tri2: 80, tri3: null, faltas1: 1, faltas2: 0, faltas3: 1 },
+    { disciplina: "Práticas Experimentais", tri1: 58, tri2: "6,2", tri3: 6.4, faltas1: 1, faltas2: 1, faltas3: 1 }
   ];
 
-  return disciplinas;
+  return listaBruta.map(normalizarDisciplina);
 }
 
 /* ====== NORMALIZAÇÃO DOS DADOS ====== */
@@ -83,20 +83,19 @@ function normalizarFaltaAntiga(valor) {
 }
 
 function normalizarDisciplina(item) {
+  // Suporta faltas vindas como array [1, 2, 0] ou separadas (faltas1, faltas2, faltas3)
+  const f1 = Array.isArray(item.faltas) ? item.faltas[0] : (item.faltas1 ?? item.faltas_tri1);
+  const f2 = Array.isArray(item.faltas) ? item.faltas[1] : (item.faltas2 ?? item.faltas_tri2);
+  const f3 = Array.isArray(item.faltas) ? item.faltas[2] : (item.faltas3 ?? item.faltas_tri3);
+
   return {
     disciplina: String(item.disciplina ?? item.nome ?? ""),
     tri1: normalizarNotaAntiga(item.tri1),
     tri2: normalizarNotaAntiga(item.tri2),
     tri3: normalizarNotaAntiga(item.tri3),
-    faltas1: normalizarFaltaAntiga(
-      item.faltas1 ?? item.faltas_tri1 ?? 0
-    ),
-    faltas2: normalizarFaltaAntiga(
-      item.faltas2 ?? item.faltas_tri2 ?? 0
-    ),
-    faltas3: normalizarFaltaAntiga(
-      item.faltas3 ?? item.faltas_tri3 ?? 0
-    )
+    faltas1: normalizarFaltaAntiga(f1),
+    faltas2: normalizarFaltaAntiga(f2),
+    faltas3: normalizarFaltaAntiga(f3)
   };
 }
 
@@ -158,19 +157,14 @@ async function entrar(evento) {
 
     if (resultado.dados === null) {
       dadosBoletim = obterDadosDemonstrativos();
-
       $("status-boletim").textContent =
         "Dados fictícios carregados. Ainda não existem dados salvos na API.";
     } else {
-      if (
-        !resultado.dados ||
-        !Array.isArray(resultado.dados.disciplinas)
-      ) {
+      if (!resultado.dados || !Array.isArray(resultado.dados.disciplinas)) {
         throw new Error("RESPOSTA_INVALIDA");
       }
 
       dadosBoletim = resultado.dados.disciplinas.map(normalizarDisciplina);
-
       $("status-boletim").textContent = "Dados carregados da API.";
     }
 
@@ -190,15 +184,8 @@ async function entrar(evento) {
       mostrarMensagemAcesso(
         "Muitas tentativas. Aguarde um minuto e tente novamente."
       );
-    } else if (
-      erro.message === "RESPOSTA_INVALIDA" ||
-      erro.message === "ERRO_SERVIDOR"
-    ) {
-      mostrarMensagemAcesso(
-        "Não foi possível carregar os dados. Tente novamente."
-      );
     } else {
-      // Se a conexão com a API falhar (servidor fora do ar), carrega os dados demonstrativos de 15 matérias!
+      // Quando a API não conecta (offline), carrega SEMPRE as 15 matérias demonstrativas
       dadosBoletim = obterDadosDemonstrativos();
       pinSessao = pinDigitado;
       campoPin.value = "";
@@ -440,8 +427,6 @@ function obterOpcoesBase() {
   };
 }
 
-/* Gráfico 1: média por disciplina */
-
 function atualizarGraficoDisciplinas() {
   const canvas = $("grafico-disciplinas");
 
@@ -484,8 +469,6 @@ function atualizarGraficoDisciplinas() {
     options: opcoes
   });
 }
-
-/* Gráfico 2: evolução das médias */
 
 function atualizarGraficoEvolucao() {
   const canvas = $("grafico-evolucao");
@@ -533,8 +516,6 @@ function atualizarGraficoEvolucao() {
   });
 }
 
-/* Gráfico 3: faltas por trimestre */
-
 function atualizarGraficoFaltas() {
   const canvas = $("grafico-faltas");
 
@@ -575,8 +556,6 @@ function atualizarGraficoFaltas() {
 
   atualizarAlertaFaltas();
 }
-
-/* Exibe somente o aviso quando o total anual atingir a referência. */
 
 function atualizarAlertaFaltas() {
   const cardGrafico = $("grafico-faltas")?.closest(".grafico-card");
