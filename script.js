@@ -28,7 +28,7 @@ function iniciar() {
   $("form-edicao").addEventListener("submit", salvarAlteracoes);
 }
 
-/* ====== DADOS DEMONSTRATIVOS (15 MATÉRIAS FIXAS DO 8º ANO) ====== */
+/* ====== DADOS DEMONSTRATIVOS (15 MATÉRIAS OBRIGATÓRIAS DO 8º ANO) ====== */
 
 function obterDadosDemonstrativos() {
   const listaBruta = [
@@ -148,17 +148,32 @@ async function entrar(evento) {
       throw new Error("ERRO_SERVIDOR");
     }
 
-    // Valida se a resposta da API veio correta
     const resultado = await resposta.json();
 
     if (!resultado || !Object.prototype.hasOwnProperty.call(resultado, "dados")) {
       throw new Error("RESPOSTA_INVALIDA");
     }
 
-    // Carrega sempre as 15 matérias padronizadas na tela
-    dadosBoletim = obterDadosDemonstrativos();
+    // Carrega a lista completa de 15 matérias
+    const materiasFicticias = obterDadosDemonstrativos();
 
-    $("status-boletim").textContent = "Conectado à API com sucesso.";
+    // Se a API retornar matérias salvas, atualizamos as notas correspondentes mantendo a lista de 15
+    if (resultado.dados && Array.isArray(resultado.dados.disciplinas) && resultado.dados.disciplinas.length > 0) {
+      const materiasAPI = resultado.dados.disciplinas.map(normalizarDisciplina);
+
+      dadosBoletim = materiasFicticias.map((itemFicticio) => {
+        const itemApi = materiasAPI.find(
+          (m) => m.disciplina.toLowerCase() === itemFicticio.disciplina.toLowerCase()
+        );
+        return itemApi || itemFicticio;
+      });
+
+      $("status-boletim").textContent = "Dados autenticados via API (15 disciplinas carregadas).";
+    } else {
+      dadosBoletim = materiasFicticias;
+      $("status-boletim").textContent = "Dados fictícios carregados. Ainda não existem dados salvos na API.";
+    }
+
     pinSessao = pinDigitado;
     campoPin.value = "";
 
@@ -176,7 +191,7 @@ async function entrar(evento) {
         "Muitas tentativas. Aguarde um minuto e tente novamente."
       );
     } else {
-      // Caso haja erro de servidor ou de conexão, também carrega as 15 matérias para não travar o teste
+      // Caso haja erro de servidor ou de conexão, também carrega as 15 matérias para não travar a visualização
       dadosBoletim = obterDadosDemonstrativos();
       pinSessao = pinDigitado;
       campoPin.value = "";
